@@ -37,7 +37,7 @@ public class Envanter {
     private String lokasyontipi;
 
     @Column(name = "sorumluluksicil")
-    private String sorumluluk;
+    private String sorumluluksicil;
 
     @Column(name = "irsaliyetarihi")
     private LocalDate irsaliyetarihi;

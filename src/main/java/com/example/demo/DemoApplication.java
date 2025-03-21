@@ -21,6 +21,10 @@ public class DemoApplication {
             System.out.println("Model: " + envanter.getModeladi());
             System.out.println("Durum: " + envanter.getDurum());
             System.out.println("Lokasyon: " + envanter.getLokasyonadi());
+			System.out.println("Lokasyon kodu: " + envanter.getLokasyonkodu()); 
+			System.out.println("Lokasyon tipi: " + envanter.getLokasyontipi());
+			System.out.println("Sorumluluk Sicil: " + envanter.getSorumluluksicil());
+			System.out.println("İrsaliye Tarihi: " + envanter.getIrsaliyetarihi());
             System.out.println("--------------------");
         });
     }
