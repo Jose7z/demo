@@ -13,7 +13,7 @@ public class DemoApplication {
         
         EnvanterRepository envanterRepository = context.getBean(EnvanterRepository.class);
         
-        // Tüm envanter kayıtlarını çek ve göster
+        
         System.out.println("Envanter Listesi:");
         envanterRepository.findAll().forEach(envanter -> {
             System.out.println("Etiket No: " + envanter.getEtiketno());

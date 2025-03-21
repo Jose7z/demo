@@ -15,7 +15,9 @@ public class EnvanterService {
     private EnvanterRepository envanterRepository;
     
     public List<Envanter> getAllEnvanter() {
-        return envanterRepository.findAll();
+        List<Envanter> envanterList = envanterRepository.findAll();
+        System.out.println("Service layer - Retrieved envanter list size: " + envanterList.size());
+        return envanterList;
     }
     
     public Optional<Envanter> getEnvanterById(String etiketNo) {

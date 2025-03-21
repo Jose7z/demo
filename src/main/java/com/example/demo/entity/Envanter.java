@@ -15,9 +15,6 @@ public class Envanter {
     @Column(name = "urunailesi")
     private String urunailesi;
     
-    @Column(name = "sinif")
-    private String sinif;
-    
     @Column(name = "serialnumber")
     private String serialnumber;
     
@@ -38,6 +35,12 @@ public class Envanter {
 
     @Column(name = "sorumluluksicil")
     private String sorumluluksicil;
+
+    @Column(name = "sorumluluk")
+    private String sorumluluk;
+
+    @Column(name = "sinif")
+    private String sinif;
 
     @Column(name = "irsaliyetarihi")
     private LocalDate irsaliyetarihi;
