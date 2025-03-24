@@ -9,8 +9,8 @@ import java.time.LocalDate;
 @Table(name = "envanter") // Veritabanındaki gerçek tablo adını buraya yazın
 public class Envanter {
     @Id
-    @Column(name = "etiketno") // Veritabanındaki kolon adını yazın
-    private String etiketno;
+    @Column(name = "etiketno", unique = true, nullable = false)
+    private Integer etiketno; 
     
     @Column(name = "urunailesi")
     private String urunailesi;

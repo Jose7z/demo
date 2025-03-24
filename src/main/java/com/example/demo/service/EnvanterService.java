@@ -20,7 +20,7 @@ public class EnvanterService {
         return envanterList;
     }
     
-    public Optional<Envanter> getEnvanterById(String etiketNo) {
+    public Optional<Envanter> getEnvanterById(Integer etiketNo) {
         return envanterRepository.findById(etiketNo);
     }
     
@@ -28,7 +28,7 @@ public class EnvanterService {
         return envanterRepository.save(envanter);
     }
     
-    public void deleteEnvanter(String etiketNo) {
+    public void deleteEnvanter(Integer etiketNo) {
         envanterRepository.deleteById(etiketNo);
     }
 }

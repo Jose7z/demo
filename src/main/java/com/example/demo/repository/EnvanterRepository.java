@@ -3,5 +3,5 @@ package com.example.demo.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.demo.entity.Envanter;
 
-public interface EnvanterRepository extends JpaRepository<Envanter, String> {
+public interface EnvanterRepository extends JpaRepository<Envanter, Integer> {
 }

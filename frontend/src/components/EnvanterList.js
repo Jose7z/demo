@@ -33,7 +33,7 @@ function EnvanterList() {
         });
     }, []);
 
-    // Daha detaylı hata mesajı
+    
     if (error) {
         return (
             <div style={{ color: 'red', padding: '20px' }}>
@@ -44,7 +44,7 @@ function EnvanterList() {
         );
     }
 
-    // Loading mesajını güncelleyelim
+   
     if (!envanterler || envanterler.length === 0) {
         return <div style={{ padding: '20px' }}>Veriler yükleniyor...</div>;
     }
@@ -85,16 +85,22 @@ function EnvanterList() {
         <TableContainer 
             component={Paper} 
             style={{ 
-                maxWidth: '95%',
-                margin: '20px auto',
-                padding: '20px',
-                overflowX: 'auto'
+                width: '100vw',
+                maxWidth: '100vw',
+                margin: 0,
+                padding: '0 20px',
+                overflowX: 'auto',
+                boxShadow: 'none',
+                borderRadius: 0
             }}
         >
-            <Table style={{ minWidth: 1400 }}>
+            <Table style={{ width: '100%',
+                minWidth: '100%',
+                tableLayout: 'auto'
+            }}>
                 <TableHead>
                     <TableRow>
-                        <TableCell style={{ minWidth: 120 }}>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'etiketno'}
                                 direction={orderBy === 'etiketno' ? order : 'asc'}
@@ -103,7 +109,7 @@ function EnvanterList() {
                                 Etiket No
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell style={{ minWidth: 120 }}>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'urunailesi'}
                                 direction={orderBy === 'urunailesi' ? order : 'asc'}
@@ -112,7 +118,7 @@ function EnvanterList() {
                                 Ürün
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'modeladi'}
                                 direction={orderBy === 'modeladi' ? order : 'asc'}
@@ -121,7 +127,7 @@ function EnvanterList() {
                                 Model
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'durum'}
                                 direction={orderBy === 'durum' ? order : 'asc'}
@@ -130,7 +136,7 @@ function EnvanterList() {
                                 Durum
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'lokasyonadi'}
                                 direction={orderBy === 'lokasyonadi' ? order : 'asc'}
@@ -139,7 +145,7 @@ function EnvanterList() {
                                 Lokasyon
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'lokasyonkodu'}
                                 direction={orderBy === 'lokasyonkodu' ? order : 'asc'}
@@ -148,7 +154,7 @@ function EnvanterList() {
                                 Lokasyon Kodu
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'lokasyontipi'}
                                 direction={orderBy === 'lokasyontipi' ? order : 'asc'}
@@ -157,7 +163,7 @@ function EnvanterList() {
                                 Lokasyon Tipi
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'sorumluluksicil'}
                                 direction={orderBy === 'sorumluluksicil' ? order : 'asc'}
@@ -166,7 +172,7 @@ function EnvanterList() {
                                 Sorumluluk Sicil
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'sorumluluk'}
                                 direction={orderBy === 'sorumluluk' ? order : 'asc'}
@@ -175,7 +181,7 @@ function EnvanterList() {
                                 Sorumluluk
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'sinif'}
                                 direction={orderBy === 'sinif' ? order : 'asc'}
@@ -184,7 +190,7 @@ function EnvanterList() {
                                 Sınıf
                             </TableSortLabel>
                         </TableCell>
-                        <TableCell>
+                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
                             <TableSortLabel
                                 active={orderBy === 'irsaliyetarihi'}
                                 direction={orderBy === 'irsaliyetarihi' ? order : 'asc'}

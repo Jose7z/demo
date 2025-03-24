@@ -30,19 +30,33 @@ public class EnvanterController {
     
 
     @GetMapping("/envanter/{etiketNo}")
-    public ResponseEntity<Envanter> getEnvanterById(@PathVariable String etiketNo) {
+    public ResponseEntity<Envanter> getEnvanterById(@PathVariable Integer etiketNo) {
         return envanterService.getEnvanterById(etiketNo)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public Envanter createEnvanter(@RequestBody Envanter envanter) {
-        return envanterService.saveEnvanter(envanter);
+    @PostMapping("/envanter")
+    public ResponseEntity<Envanter> createEnvanter(@RequestBody Envanter envanter) {
+        try {
+            System.out.println("Received envanter data: " + envanter); // Debug log
+            if (envanter.getEtiketno() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            Envanter savedEnvanter = envanterService.saveEnvanter(envanter);
+            System.out.println("Saved envanter: " + savedEnvanter); // Debug log
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(savedEnvanter);
+        } catch (Exception e) {
+            System.err.println("Error saving envanter: " + e.getMessage()); // Error log
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @PutMapping("/envanter/{etiketNo}")
-    public ResponseEntity<Envanter> updateEnvanter(@PathVariable String etiketNo, 
+    public ResponseEntity<Envanter> updateEnvanter(@PathVariable Integer etiketNo, 
                                                  @RequestBody Envanter envanter) {
         return envanterService.getEnvanterById(etiketNo)
                 .map(existingEnvanter -> {
@@ -53,7 +67,7 @@ public class EnvanterController {
     }
 
     @DeleteMapping("/envanter/{etiketNo}")
-    public ResponseEntity<Void> deleteEnvanter(@PathVariable String etiketNo) {
+    public ResponseEntity<Void> deleteEnvanter(@PathVariable Integer etiketNo) {
         return envanterService.getEnvanterById(etiketNo)
                 .map(envanter -> {
                     envanterService.deleteEnvanter(etiketNo);
