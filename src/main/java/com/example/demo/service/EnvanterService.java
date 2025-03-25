@@ -12,7 +12,8 @@ import java.util.Optional;
 public class EnvanterService {
     
     @Autowired
-    private EnvanterRepository envanterRepository;
+    private EnvanterRepository envanterRepository ;
+
     
     public List<Envanter> getAllEnvanter() {
         List<Envanter> envanterList = envanterRepository.findAll();

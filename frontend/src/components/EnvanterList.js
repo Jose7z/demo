@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TableSortLabel } from '@mui/material';
+import { Table } from 'antd';
 import axios from 'axios';
 
 function EnvanterList() {
     const [envanterler, setEnvanterler] = useState([]);
-    const [orderBy, setOrderBy] = useState('etiketno');
-    const [order, setOrder] = useState('asc');
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -33,7 +31,75 @@ function EnvanterList() {
         });
     }, []);
 
-    
+    const columns = [
+        {
+            title: 'Etiket No',
+            dataIndex: 'etiketno',
+            key: 'etiketno',
+            sorter: (a, b) => a.etiketno.localeCompare(b.etiketno)
+        },
+        {
+            title: 'Ürün',
+            dataIndex: 'urunailesi',
+            key: 'urunailesi',
+            sorter: (a, b) => a.urunailesi.localeCompare(b.urunailesi)
+        },
+        {
+            title: 'Model',
+            dataIndex: 'modeladi',
+            key: 'modeladi',
+            sorter: (a, b) => a.modeladi.localeCompare(b.modeladi)
+        },
+        {
+            title: 'Durum',
+            dataIndex: 'durum',
+            key: 'durum',
+            sorter: (a, b) => a.durum.localeCompare(b.durum)
+        },
+        {
+            title: 'Lokasyon',
+            dataIndex: 'lokasyonadi',
+            key: 'lokasyonadi',
+            sorter: (a, b) => a.lokasyonadi.localeCompare(b.lokasyonadi)
+        },
+        {
+            title: 'Lokasyon Kodu',
+            dataIndex: 'lokasyonkodu',
+            key: 'lokasyonkodu',
+            sorter: (a, b) => a.lokasyonkodu.localeCompare(b.lokasyonkodu)
+        },
+        {
+            title: 'Lokasyon Tipi',
+            dataIndex: 'lokasyontipi',
+            key: 'lokasyontipi',
+            sorter: (a, b) => a.lokasyontipi.localeCompare(b.lokasyontipi)
+        },
+        {
+            title: 'Sorumluluk Sicil',
+            dataIndex: 'sorumluluksicil',
+            key: 'sorumluluksicil',
+            sorter: (a, b) => a.sorumluluksicil.localeCompare(b.sorumluluksicil)
+        },
+        {
+            title: 'Sorumluluk',
+            dataIndex: 'sorumluluk',
+            key: 'sorumluluk',
+            sorter: (a, b) => a.sorumluluk.localeCompare(b.sorumluluk)
+        },
+        {
+            title: 'Sınıf',
+            dataIndex: 'sinif',
+            key: 'sinif',
+            sorter: (a, b) => a.sinif.localeCompare(b.sinif)
+        },
+        {
+            title: 'İrsaliye Tarihi',
+            dataIndex: 'irsaliyetarihi',
+            key: 'irsaliyetarihi',
+            sorter: (a, b) => new Date(a.irsaliyetarihi) - new Date(b.irsaliyetarihi)
+        }
+    ];
+
     if (error) {
         return (
             <div style={{ color: 'red', padding: '20px' }}>
@@ -44,182 +110,24 @@ function EnvanterList() {
         );
     }
 
-   
     if (!envanterler || envanterler.length === 0) {
         return <div style={{ padding: '20px' }}>Veriler yükleniyor...</div>;
     }
 
-    // Hata mesajını göster
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
-
-    // Yükleniyor mesajını göster
-    if (envanterler.length === 0) {
-        return <div>Loading...</div>;
-    }
-
-    const handleSort = (property) => {
-        const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
-    };
-
-    // Debug için
-    console.log('Current data:', envanterler);
-    console.log('OrderBy:', orderBy);
-    console.log('Order:', order);
-
-    const sortedEnvanterler = [...envanterler].sort((a, b) => {
-        const valueA = a[orderBy] || '';
-        const valueB = b[orderBy] || '';
-        
-        if (order === 'asc') {
-            return valueA < valueB ? -1 : 1;
-        } else {
-            return valueB < valueA ? -1 : 1;
-        }
-    });
-
     return (
-        <TableContainer 
-            component={Paper} 
-            style={{ 
-                width: '100vw',
-                maxWidth: '100vw',
-                margin: 0,
-                padding: '0 20px',
-                overflowX: 'auto',
-                boxShadow: 'none',
-                borderRadius: 0
+        <Table
+            columns={columns}
+            dataSource={envanterler}
+            rowKey="etiketno"
+            scroll={{ x: true }}
+            pagination={{ 
+                pageSize: 10,
+                showSizeChanger: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} / ${total} kayıt`
             }}
-        >
-            <Table style={{ width: '100%',
-                minWidth: '100%',
-                tableLayout: 'auto'
-            }}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'etiketno'}
-                                direction={orderBy === 'etiketno' ? order : 'asc'}
-                                onClick={() => handleSort('etiketno')}
-                            >
-                                Etiket No
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'urunailesi'}
-                                direction={orderBy === 'urunailesi' ? order : 'asc'}
-                                onClick={() => handleSort('urunailesi')}
-                            >
-                                Ürün
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'modeladi'}
-                                direction={orderBy === 'modeladi' ? order : 'asc'}
-                                onClick={() => handleSort('modeladi')}
-                            >
-                                Model
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'durum'}
-                                direction={orderBy === 'durum' ? order : 'asc'}
-                                onClick={() => handleSort('durum')}
-                            >
-                                Durum
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'lokasyonadi'}
-                                direction={orderBy === 'lokasyonadi' ? order : 'asc'}
-                                onClick={() => handleSort('lokasyonadi')}
-                            >
-                                Lokasyon
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'lokasyonkodu'}
-                                direction={orderBy === 'lokasyonkodu' ? order : 'asc'}
-                                onClick={() => handleSort('lokasyonkodu')}
-                            >
-                                Lokasyon Kodu
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'lokasyontipi'}
-                                direction={orderBy === 'lokasyontipi' ? order : 'asc'}
-                                onClick={() => handleSort('lokasyontipi')}
-                            >
-                                Lokasyon Tipi
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'sorumluluksicil'}
-                                direction={orderBy === 'sorumluluksicil' ? order : 'asc'}
-                                onClick={() => handleSort('sorumluluksicil')}
-                            >
-                                Sorumluluk Sicil
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'sorumluluk'}
-                                direction={orderBy === 'sorumluluk' ? order : 'asc'}
-                                onClick={() => handleSort('sorumluluk')}
-                            >
-                                Sorumluluk
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'sinif'}
-                                direction={orderBy === 'sinif' ? order : 'asc'}
-                                onClick={() => handleSort('sinif')}
-                            >
-                                Sınıf
-                            </TableSortLabel>
-                        </TableCell>
-                        <TableCell style={{ minWidth: 120, whiteSpace: 'nowrap'}}>
-                            <TableSortLabel
-                                active={orderBy === 'irsaliyetarihi'}
-                                direction={orderBy === 'irsaliyetarihi' ? order : 'asc'}
-                                onClick={() => handleSort('irsaliyetarihi')}
-                            >
-                                İrsaliye Tarihi
-                            </TableSortLabel>
-                        </TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {sortedEnvanterler.map((envanter) => (
-                        <TableRow key={envanter.etiketno}>
-                            <TableCell>{envanter.etiketno}</TableCell>
-                            <TableCell>{envanter.urunailesi}</TableCell>
-                            <TableCell>{envanter.modeladi}</TableCell>
-                            <TableCell>{envanter.durum}</TableCell>
-                            <TableCell>{envanter.lokasyonadi}</TableCell>
-                            <TableCell>{envanter.lokasyonkodu}</TableCell>
-                            <TableCell>{envanter.lokasyontipi}</TableCell>
-                            <TableCell>{envanter.sorumluluksicil}</TableCell>
-                            <TableCell>{envanter.sorumluluk}</TableCell>
-                            <TableCell>{envanter.sinif}</TableCell>
-                            <TableCell>{envanter.irsaliyetarihi}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+            bordered
+            size="middle"
+        />
     );
 }
 

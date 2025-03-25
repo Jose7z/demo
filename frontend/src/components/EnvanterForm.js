@@ -1,5 +1,32 @@
 import React, { useState } from 'react';
-import { TextField, Button, Paper } from '@mui/material';
+import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider} from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
+import { createStyles } from 'antd-style';
+import moment from 'moment';
+
+const useStyle = createStyles(({ prefixCls, css }) => ({
+  linearGradientButton: css`
+    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
+      > span {
+        position: relative;
+      }
+
+      &::before {
+        content: '';
+        background: linear-gradient(135deg, #6253e1, #04befe);
+        position: absolute;
+        inset: -1px;
+        opacity: 1;
+        transition: all 0.3s;
+        border-radius: inherit;
+      }
+
+      &:hover::before {
+        opacity: 0;
+      }
+    }
+  `,
+}));
 
 function EnvanterForm({ onSubmit }) {
   const [formData, setFormData] = useState({
@@ -15,6 +42,7 @@ function EnvanterForm({ onSubmit }) {
     sinif: '',
     irsaliyetarihi: ''
   });
+  const { styles } = useStyle();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -39,115 +67,133 @@ function EnvanterForm({ onSubmit }) {
     justifyContent: 'center',
     marginTop: '20px'
   };
+  
 
   return (
-    <Paper style={{ margin: '20px 0' }}>
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <div style={inputStyle}>
-          <TextField
-            required
-            fullWidth
-            label="Etiket No"
-            value={formData.etiketno}
-            onChange={(e) => setFormData({...formData, etiketno: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Ürün"
-            value={formData.urunailesi}
-            onChange={(e) => setFormData({...formData, urunailesi: e.target.value})}
-          />
-        </div>
-        {/* Diğer TextField'lar için aynı yapıyı tekrarlayın */}
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Model"
-            value={formData.modeladi}
-            onChange={(e) => setFormData({...formData, modeladi: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Durum"
-            value={formData.durum}
-            onChange={(e) => setFormData({...formData, durum: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Lokasyon"
-            value={formData.lokasyonadi}
-            onChange={(e) => setFormData({...formData, lokasyonadi: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Lokasyon Kodu"
-            value={formData.lokasyonkodu}
-            onChange={(e) => setFormData({...formData, lokasyonkodu: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Lokasyon Tipi"
-            value={formData.lokasyontipi}
-            onChange={(e) => setFormData({...formData, lokasyontipi: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Sorumluluk Sicil"
-            value={formData.sorumluluksicil}
-            onChange={(e) => setFormData({...formData, sorumluluksicil: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Sorumluluk"
-            value={formData.sorumluluk}
-            onChange={(e) => setFormData({...formData, sorumluluk: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="Sınıf"
-            value={formData.sinif}
-            onChange={(e) => setFormData({...formData, sinif: e.target.value})}
-          />
-        </div>
-        <div style={inputStyle}>
-          <TextField
-            fullWidth
-            label="İrsaliye Tarihi"
-            type="date"
-            value={formData.irsaliyetarihi}
-            onChange={(e) => setFormData({...formData, irsaliyetarihi: e.target.value})}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </div>
+    <Form layout="vertical">
+      <Row gutter={24}>
+        <Col span={6}>
+          <Form.Item label="Etiket No">
+            <Input
+              placeholder="Etiket No giriniz"
+              value={formData.etiketno}
+              onChange={(e) => setFormData({...formData, etiketno: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Ürün">
+            <Input
+              placeholder="Ürün giriniz"
+              value={formData.urunailesi}
+              onChange={(e) => setFormData({...formData, urunailesi: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Model">
+            <Input
+              placeholder="Model giriniz"
+              value={formData.modeladi}
+              onChange={(e) => setFormData({...formData, modeladi: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Durum">
+            <Input
+              placeholder="Durum giriniz"
+              value={formData.durum}
+              onChange={(e) => setFormData({...formData, durum: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Lokasyon">
+            <Input
+              placeholder="Lokasyon giriniz"
+              value={formData.lokasyonadi}
+              onChange={(e) => setFormData({...formData, lokasyonadi: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Lokasyon Kodu">
+            <Input
+              placeholder="Lokasyon Kodu giriniz"
+              value={formData.lokasyonkodu}
+              onChange={(e) => setFormData({...formData, lokasyonkodu: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Lokasyon Tipi">
+            <Input
+              placeholder="Lokasyon Tipi giriniz"
+              value={formData.lokasyontipi}
+              onChange={(e) => setFormData({...formData, lokasyontipi: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Sorumluluk Sicil">
+            <Input
+              placeholder="Sorumluluk Sicil giriniz"
+              value={formData.sorumluluksicil}
+              onChange={(e) => setFormData({...formData, sorumluluksicil: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={3} /> {/* Empty column for spacing */}
+        <Col span={6}>
+          <Form.Item label="Sorumluluk">
+            <Input
+              placeholder="Sorumluluk giriniz"
+              value={formData.sorumluluk}
+              onChange={(e) => setFormData({...formData, sorumluluk: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="Sınıf">
+            <Input
+              placeholder="Sınıf giriniz"
+              value={formData.sinif}
+              onChange={(e) => setFormData({...formData, sinif: e.target.value})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label="İrsaliye Tarihi">
+            <DatePicker
+              style={{ width: '100%' }}
+              value={formData.irsaliyetarihi ? moment(formData.irsaliyetarihi) : null}
+              onChange={(date) => setFormData({...formData, irsaliyetarihi: date ? date.format('YYYY-MM-DD') : ''})}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={3} /> {/* Empty column for spacing */}
+      </Row>
         <div style={buttonContainerStyle}>
-          <Button 
-            variant="contained" 
-            color="primary" 
-            type="submit"
+          <ConfigProvider
+            button={{
+              className: styles.linearGradientButton,
+            }}
           >
-            Ekle
-          </Button>
+            <Space>
+              <Button 
+                type="primary" 
+                size="large" 
+                icon={<PlusOutlined />}
+                onClick={handleSubmit}
+              >
+                Ekle
+              </Button>
+            </Space>
+          </ConfigProvider>
         </div>
-      </form>
-    </Paper>
+        </Form>
+    
   );
 }
 

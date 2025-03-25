@@ -1,10 +1,13 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Container } from '@mui/material';
+import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Container, Button} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import EnvanterList from './components/EnvanterList';
 import EnvanterForm from './components/EnvanterForm';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
+import 'antd/dist/reset.css';
 
 import './App.css';
 
@@ -17,7 +20,7 @@ function App() {
         throw new Error('Etiket No boş olamaz');
       }
       const requestData = {
-        etiketno: parseInt(formData.etiketno, 10), // String'i Integer'a çevir
+        etiketno: parseInt(formData.etiketno, 10), 
         urunailesi: formData.urunailesi || '',
         modeladi: formData.modeladi || '',
         durum: formData.durum || '',
@@ -58,18 +61,33 @@ function App() {
 
   return (
     <div className="App">
-      <AppBar position="static">
-        <Toolbar>
+      <AppBar position="static" sx={{ height: '48px' }}>
+        <Toolbar variant="dense" sx={{ minHeight: '48px' }}>
           <IconButton
             edge="start"
             color="inherit"
             onClick={() => setDrawerOpen(true)}
+            size="small"
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1, fontSize: '1.1rem' }}>
             Envanter Yönetim Sistemi
           </Typography>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AccountCircleIcon sx={{ fontSize: '1.2rem' }} />
+            <Typography variant="body2">
+              John Doe
+            </Typography>
+            <Button 
+              color="inherit" 
+              size="small" 
+              startIcon={<LogoutIcon />}
+              sx={{ ml: 2, textTransform: 'none' }}
+            >
+              Çıkış Yap
+            </Button>
+          </div>
         </Toolbar>
       </AppBar>
 
