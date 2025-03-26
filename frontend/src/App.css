@@ -11,6 +11,13 @@ body, html {
   width: 100%;
   overflow-x: hidden;
 }
+.custom-button {
+  background-color: #001529;
+}
+
+.custom-button:hover {
+  background-color: #1677ff !important;
+}
 .MuiContainer-root {
   max-width: 100% !important;
   padding: 0 !important;
@@ -64,6 +71,35 @@ body, html {
 
 .MuiTextField-root {
   background-color: white;
+}
+@media screen and (max-width: 1200px) {
+  .ant-col-6 {
+    flex: 0 0 33.33% !important;
+    max-width: 33.33% !important;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .ant-col-6 {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .ant-col-6 {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+  }
+  
+  .ant-form-item {
+    margin-bottom: 16px !important;
+  }
+
+  .ant-row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
 }
 
 

@@ -1,18 +1,18 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton, Container, Button} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+import React, { useState } from 'react';
+import { Button, Layout, Menu, theme } from 'antd';
+import { UserOutlined, DashboardOutlined, LogoutOutlined, DatabaseOutlined, UploadOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import EnvanterList from './components/EnvanterList';
 import EnvanterForm from './components/EnvanterForm';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LogoutIcon from '@mui/icons-material/Logout';
 import 'antd/dist/reset.css';
-
 import './App.css';
 
+const { Header, Content, Footer, Sider } = Layout;
+
 function App() {
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleSubmit = async (formData) => {
     try {
@@ -38,13 +38,9 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          
         },
-       
         body: JSON.stringify(requestData)
       });
-      
-      
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
@@ -59,64 +55,96 @@ function App() {
     }
   };
 
+  const items = [
+    {
+      key: '1',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '2',
+      icon: <DatabaseOutlined />,
+      label: 'Envanter',
+    },
+    {
+      key: '3',
+      icon: <UploadOutlined />,
+      label: 'Export',
+    },
+  ];
+
   return (
-    <div className="App">
-      <AppBar position="static" sx={{ height: '48px' }}>
-        <Toolbar variant="dense" sx={{ minHeight: '48px' }}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => setDrawerOpen(true)}
-            size="small"
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontSize: '1.1rem' }}>
-            Envanter Yönetim Sistemi
-          </Typography>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AccountCircleIcon sx={{ fontSize: '1.2rem' }} />
-            <Typography variant="body2">
-              John Doe
-            </Typography>
-            <Button 
-              color="inherit" 
-              size="small" 
-              startIcon={<LogoutIcon />}
-              sx={{ ml: 2, textTransform: 'none' }}
-            >
-              Çıkış Yap
-            </Button>
-          </div>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider
+        trigger={null}
+        collapsible 
+        collapsed={collapsed}
       >
-        <List style={{ width: 250 }}>
-          <ListItem button>
-            <ListItemIcon>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <ListItem button>
-            <ListItemIcon>
-              <InventoryIcon />
-            </ListItemIcon>
-            <ListItemText primary="Envanter" />
-          </ListItem>
-        </List>
-      </Drawer>
-
-      <Container style={{ marginTop: 20 }}>
-        <EnvanterForm onSubmit={handleSubmit} />
-        <EnvanterList />
-      </Container>
-    </div>
+        <div style={{ 
+          height: 32, 
+          margin: 16, 
+          background: 'rgba(255, 255, 255, 0.2)',
+          borderRadius: 6
+        }} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={['2']}
+          items={items}
+        />
+      </Sider>
+      <Layout>
+        <Header style={{ 
+          padding: '0 16px', 
+          background: colorBgContainer, 
+          display: 'flex', 
+          alignItems: 'center', 
+        }}>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 64,
+              height: 64,
+              marginRight: 16
+            }}
+          />
+          <h1 style={{ margin: 0, fontSize: '18px', flex: 1 }}>Envanter Yönetim Sistemi</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <UserOutlined style={{ fontSize: '18px' }} />
+            <span>John Doe</span>
+            <LogoutOutlined style={{ cursor: 'pointer' }} />
+          </div>
+        </Header>
+        <Content style={{ margin: '16px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div
+              style={{
+                padding: 24,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              <EnvanterForm onSubmit={handleSubmit} />
+            </div>
+            <div
+              style={{
+                padding: 24,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              <EnvanterList />
+            </div>
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>
+          Envanter Yönetim Sistemi ©{new Date().getFullYear()}
+        </Footer>
+      </Layout>
+    </Layout>
   );
 }
 

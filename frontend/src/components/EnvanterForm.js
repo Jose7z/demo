@@ -1,32 +1,10 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider} from 'antd';
+import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
 import moment from 'moment';
 
-const useStyle = createStyles(({ prefixCls, css }) => ({
-  linearGradientButton: css`
-    &.${prefixCls}-btn-primary:not([disabled]):not(.${prefixCls}-btn-dangerous) {
-      > span {
-        position: relative;
-      }
 
-      &::before {
-        content: '';
-        background: linear-gradient(135deg, #6253e1, #04befe);
-        position: absolute;
-        inset: -1px;
-        opacity: 1;
-        transition: all 0.3s;
-        border-radius: inherit;
-      }
-
-      &:hover::before {
-        opacity: 0;
-      }
-    }
-  `,
-}));
 
 function EnvanterForm({ onSubmit }) {
   const [formData, setFormData] = useState({
@@ -42,7 +20,6 @@ function EnvanterForm({ onSubmit }) {
     sinif: '',
     irsaliyetarihi: ''
   });
-  const { styles } = useStyle();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -67,9 +44,16 @@ function EnvanterForm({ onSubmit }) {
     justifyContent: 'center',
     marginTop: '20px'
   };
-  
+  const layoutStyle = {
+    borderRadius: 8,
+    overflow: 'hidden',
+    width: 'calc(50% - 8px)',
+    maxWidth: 'calc(50% - 8px)',
+  };
+
 
   return (
+
     <Form layout="vertical">
       <Row gutter={24}>
         <Col span={6}>
@@ -77,7 +61,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Etiket No giriniz"
               value={formData.etiketno}
-              onChange={(e) => setFormData({...formData, etiketno: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, etiketno: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -86,7 +70,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Ürün giriniz"
               value={formData.urunailesi}
-              onChange={(e) => setFormData({...formData, urunailesi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, urunailesi: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -95,7 +79,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Model giriniz"
               value={formData.modeladi}
-              onChange={(e) => setFormData({...formData, modeladi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, modeladi: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -104,7 +88,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Durum giriniz"
               value={formData.durum}
-              onChange={(e) => setFormData({...formData, durum: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, durum: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -113,7 +97,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Lokasyon giriniz"
               value={formData.lokasyonadi}
-              onChange={(e) => setFormData({...formData, lokasyonadi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, lokasyonadi: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -122,7 +106,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Lokasyon Kodu giriniz"
               value={formData.lokasyonkodu}
-              onChange={(e) => setFormData({...formData, lokasyonkodu: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, lokasyonkodu: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -131,7 +115,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Lokasyon Tipi giriniz"
               value={formData.lokasyontipi}
-              onChange={(e) => setFormData({...formData, lokasyontipi: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, lokasyontipi: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -140,17 +124,17 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Sorumluluk Sicil giriniz"
               value={formData.sorumluluksicil}
-              onChange={(e) => setFormData({...formData, sorumluluksicil: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, sorumluluksicil: e.target.value })}
             />
           </Form.Item>
         </Col>
-        <Col span={3} /> {/* Empty column for spacing */}
+        <Col span={3} />
         <Col span={6}>
           <Form.Item label="Sorumluluk">
             <Input
               placeholder="Sorumluluk giriniz"
               value={formData.sorumluluk}
-              onChange={(e) => setFormData({...formData, sorumluluk: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, sorumluluk: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -159,7 +143,7 @@ function EnvanterForm({ onSubmit }) {
             <Input
               placeholder="Sınıf giriniz"
               value={formData.sinif}
-              onChange={(e) => setFormData({...formData, sinif: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, sinif: e.target.value })}
             />
           </Form.Item>
         </Col>
@@ -168,32 +152,29 @@ function EnvanterForm({ onSubmit }) {
             <DatePicker
               style={{ width: '100%' }}
               value={formData.irsaliyetarihi ? moment(formData.irsaliyetarihi) : null}
-              onChange={(date) => setFormData({...formData, irsaliyetarihi: date ? date.format('YYYY-MM-DD') : ''})}
+              onChange={(date) => setFormData({ ...formData, irsaliyetarihi: date ? date.format('YYYY-MM-DD') : '' })}
             />
           </Form.Item>
         </Col>
-        <Col span={3} /> {/* Empty column for spacing */}
+        <Col span={3} />
       </Row>
-        <div style={buttonContainerStyle}>
-          <ConfigProvider
-            button={{
-              className: styles.linearGradientButton,
-            }}
-          >
-            <Space>
-              <Button 
-                type="primary" 
-                size="large" 
-                icon={<PlusOutlined />}
-                onClick={handleSubmit}
-              >
-                Ekle
-              </Button>
-            </Space>
-          </ConfigProvider>
-        </div>
-        </Form>
-    
+      <div style={buttonContainerStyle}>
+        <ConfigProvider>
+          <Space>
+            <Button
+              type="primary"
+              size="default"
+              icon={<PlusOutlined />}
+              onClick={handleSubmit}
+              className="custom-button"
+            >
+              Ekle
+            </Button>
+          </Space>
+        </ConfigProvider>
+      </div>
+    </Form>
+
   );
 }
 
