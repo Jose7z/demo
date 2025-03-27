@@ -24,10 +24,30 @@ public class EnvanterController {
         List<Envanter> envanterList = envanterService.getAllEnvanter();
         System.out.println("Returning envanter list, size: " + envanterList.size());
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(envanterList);
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(envanterList);
     }
-    
+
+    @GetMapping("/envanter/search")
+    public ResponseEntity<List<Envanter>> searchEnvanter(
+            @RequestParam(required = false) Integer etiketno,
+            @RequestParam(required = false) String urunailesi,
+            @RequestParam(required = false) String modeladi,
+            @RequestParam(required = false) String durum,
+            @RequestParam(required = false) String lokasyonadi,
+            @RequestParam(required = false) String lokasyonkodu,
+            @RequestParam(required = false) String lokasyontipi,
+            @RequestParam(required = false) String sorumluluksicil,
+            @RequestParam(required = false) String sorumluluk,
+            @RequestParam(required = false) String sinif,
+            @RequestParam(required = false) String irsaliyetarihi) {
+        List<Envanter> results = envanterService.searchEnvanter(
+                etiketno, urunailesi, modeladi, durum,
+                lokasyonadi, lokasyonkodu, lokasyontipi,
+                sorumluluksicil, sorumluluk, sinif, irsaliyetarihi);
+        return ResponseEntity.ok(results);
+        
+    }
 
     @GetMapping("/envanter/{etiketNo}")
     public ResponseEntity<Envanter> getEnvanterById(@PathVariable Integer etiketNo) {
@@ -46,8 +66,8 @@ public class EnvanterController {
             Envanter savedEnvanter = envanterService.saveEnvanter(envanter);
             System.out.println("Saved envanter: " + savedEnvanter); // Debug log
             return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(savedEnvanter);
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(savedEnvanter);
         } catch (Exception e) {
             System.err.println("Error saving envanter: " + e.getMessage()); // Error log
             e.printStackTrace();
@@ -56,8 +76,8 @@ public class EnvanterController {
     }
 
     @PutMapping("/envanter/{etiketNo}")
-    public ResponseEntity<Envanter> updateEnvanter(@PathVariable Integer etiketNo, 
-                                                 @RequestBody Envanter envanter) {
+    public ResponseEntity<Envanter> updateEnvanter(@PathVariable Integer etiketNo,
+            @RequestBody Envanter envanter) {
         return envanterService.getEnvanterById(etiketNo)
                 .map(existingEnvanter -> {
                     envanter.setEtiketno(etiketNo);

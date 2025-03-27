@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { createStyles } from 'antd-style';
+import { SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
 
-function EnvanterForm({ onSubmit }) {
+function EnvanterForm({ onSubmit, onSearch }) {
   const [formData, setFormData] = useState({
     etiketno: '',
     urunailesi: '',
@@ -25,6 +25,12 @@ function EnvanterForm({ onSubmit }) {
     e.preventDefault();
     onSubmit(formData);
   };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    onSearch(formData);
+  };
+  const [searchText, setSearchText] = useState('');
 
   const formStyle = {
     display: 'flex',
@@ -160,7 +166,16 @@ function EnvanterForm({ onSubmit }) {
       </Row>
       <div style={buttonContainerStyle}>
         <ConfigProvider>
-          <Space>
+          <Space size ="middle">
+          <Button
+              type="primary"
+              size="default"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
+              style={{ backgroundColor: '#1677ff' }}
+            >
+              Ara
+            </Button>
             <Button
               type="primary"
               size="default"
@@ -173,6 +188,7 @@ function EnvanterForm({ onSubmit }) {
           </Space>
         </ConfigProvider>
       </div>
+      
     </Form>
 
   );

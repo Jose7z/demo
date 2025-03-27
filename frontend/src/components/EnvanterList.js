@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table } from 'antd';
+import { Table, Input, Button, Space, Popconfirm } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-function EnvanterList() {
+function EnvanterList({ filteredData }) {
     const [envanterler, setEnvanterler] = useState([]);
     const [error, setError] = useState(null);
+
 
     useEffect(() => {
         console.log('Fetching data...');
@@ -30,6 +32,29 @@ function EnvanterList() {
             setError(error.message || 'An error occurred while fetching data');
         });
     }, []);
+    useEffect(() => {
+        if (filteredData) {
+            setEnvanterler(filteredData);
+        } else {
+            // Existing fetch code for initial data load
+            axios.get('http://localhost:8080/api/envanter')
+                .then(response => {
+                    setEnvanterler(response.data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+    }, [filteredData]);
+    const handleDelete = async (etiketno) => {
+        try {
+            await axios.delete(`http://localhost:8080/api/envanter/${etiketno}`);
+            setEnvanterler(envanterler.filter(item => item.etiketno !== etiketno));
+        } catch (error) {
+            console.error('Silme hatası:', error);
+            alert('Veri silinirken bir hata oluştu');
+        }
+    };
 
     const columns = [
         {
@@ -97,7 +122,26 @@ function EnvanterList() {
             dataIndex: 'irsaliyetarihi',
             key: 'irsaliyetarihi',
             sorter: (a, b) => new Date(a.irsaliyetarihi) - new Date(b.irsaliyetarihi)
-        }
+        },
+        {
+            title: 'İşlemler',
+            key: 'actions',
+            render: (_, record) => (
+                <Space>
+                    <Popconfirm
+                        title="Bu kaydı silmek istediğinizden emin misiniz?"
+                        onConfirm={() => handleDelete(record.etiketno)}
+                        okText="Evet"
+                        cancelText="Hayır"
+                    >
+                        <Button type="link" danger icon={<DeleteOutlined />}>
+                            Sil
+                        </Button>
+                    </Popconfirm>
+                </Space>
+            ),
+        },
+        
     ];
 
     if (error) {
@@ -113,8 +157,9 @@ function EnvanterList() {
     if (!envanterler || envanterler.length === 0) {
         return <div style={{ padding: '20px' }}>Veriler yükleniyor...</div>;
     }
-
+    
     return (
+        
         <Table
             columns={columns}
             dataSource={envanterler}
@@ -127,7 +172,7 @@ function EnvanterList() {
             }}
             bordered
             size="middle"
-        />
+        />             
     );
 }
 
