@@ -61,4 +61,12 @@ public class EnvanterService {
     public void deleteEnvanter(Integer etiketNo) {
         envanterRepository.deleteById(etiketNo);
     }
+    public Envanter findByEtiketno(Integer etiketno) {
+        return envanterRepository.findByEtiketno(etiketno);
+    }
+
+    public Envanter save(Envanter envanter) {
+        return envanterRepository.save(envanter);
+    }
+
 }

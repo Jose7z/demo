@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.Envanter;
 import com.example.demo.service.EnvanterService;
+import com.example.demo.model.AssignmentRequest;
 
 import org.springframework.http.MediaType;
 
@@ -46,7 +47,7 @@ public class EnvanterController {
                 lokasyonadi, lokasyonkodu, lokasyontipi,
                 sorumluluksicil, sorumluluk, sinif, irsaliyetarihi);
         return ResponseEntity.ok(results);
-        
+
     }
 
     @GetMapping("/envanter/{etiketNo}")
@@ -72,6 +73,28 @@ public class EnvanterController {
             System.err.println("Error saving envanter: " + e.getMessage()); // Error log
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/assign")
+    public ResponseEntity<?> assignProduct(@RequestBody AssignmentRequest request) {
+        try {
+            Envanter envanter = envanterService.findByEtiketno(request.getEtiketno());
+            if (envanter == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            if ("assign".equals(request.getAction())) {
+                envanter.setSorumluluksicil(request.getSorumluluksicil());
+            } else if ("unassign".equals(request.getAction())) {
+                envanter.setSorumluluksicil(null);
+                envanter.setSorumluluk(null);
+            }
+
+            envanterService.saveEnvanter(envanter);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("İşlem sırasında bir hata oluştu: " + e.getMessage());
         }
     }
 
