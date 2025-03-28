@@ -1,19 +1,21 @@
-version: '3.8'
-
 services:
   frontend:
     build: 
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: frontend.dockerfile
     ports:
       - "3000:3000"
     depends_on:
       - backend
     environment:
-      - REACT_APP_API_URL=http://backend:8080
-
+      - REACT_APP_API_URL=http://localhost:8080 
+    networks:
+      - app-network
+      
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: backend.dockerfile
     ports:
       - "8080:8080"
     depends_on:
@@ -23,6 +25,10 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=0917033
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=true  # Add this to see SQL queries
+      - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport
+    networks:
+      - app-network
 
   db:
     image: postgres:13
@@ -34,6 +40,11 @@ services:
       - POSTGRES_PASSWORD=0917033
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres_data:

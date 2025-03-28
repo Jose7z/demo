@@ -1,30 +1,36 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider } from 'antd';
+import { Form, Input, Button, Row, Col, DatePicker, Space, ConfigProvider, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 
-
 function EnvanterForm({ onSubmit, onSearch }) {
-  const [formData, setFormData] = useState({
-    etiketno: '',
-    urunailesi: '',
-    modeladi: '',
-    durum: '',
-    lokasyonadi: '',
-    lokasyonkodu: '',
-    lokasyontipi: '',
-    sorumluluksicil: '',
-    sorumluluk: '',
-    sinif: '',
-    irsaliyetarihi: ''
-  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Validate all fields have values
+    const hasEmptyFields = Object.values(formData).some(value => !value);
+    if (hasEmptyFields) {
+        message.error('Lütfen tüm alanları doldurunuz!');
+        return;
+    }
     onSubmit(formData);
-  };
+    // Reset form after successful submission
+    setFormData({
+        etiketno: '',
+        urunailesi: '',
+        modeladi: '',
+        durum: '',
+        lokasyonadi: '',
+        lokasyonkodu: '',
+        lokasyontipi: '',
+        sorumluluksicil: '',
+        sorumluluk: '',
+        sinif: '',
+        irsaliyetarihi: ''
+    });
+};
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -56,6 +62,19 @@ function EnvanterForm({ onSubmit, onSearch }) {
     width: 'calc(50% - 8px)',
     maxWidth: 'calc(50% - 8px)',
   };
+  const [formData, setFormData] = useState({
+    etiketno: '',
+    urunailesi: '',
+    modeladi: '',
+    durum: '',
+    lokasyonadi: '',
+    lokasyonkodu: '',
+    lokasyontipi: '',
+    sorumluluksicil: '',
+    sorumluluk: '',
+    sinif: '',
+    irsaliyetarihi: ''
+});
 
 
   return (

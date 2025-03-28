@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true", allowedHeaders = "*")
 public class EnvanterController {
 
     @Autowired
@@ -22,11 +22,18 @@ public class EnvanterController {
 
     @GetMapping("/envanter")
     public ResponseEntity<List<Envanter>> getAllEnvanter() {
-        List<Envanter> envanterList = envanterService.getAllEnvanter();
-        System.out.println("Returning envanter list, size: " + envanterList.size());
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(envanterList);
+        try {
+            List<Envanter> envanterList = envanterService.getAllEnvanter();
+            System.out.println("Fetched envanter list size: " + envanterList.size());
+            System.out.println("Sample data: " + (envanterList.isEmpty() ? "No data" : envanterList.get(0)));
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(envanterList);
+        } catch (Exception e) {
+            System.err.println("Error in getAllEnvanter: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/envanter/search")

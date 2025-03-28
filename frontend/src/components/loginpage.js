@@ -8,36 +8,42 @@ function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [form] = Form.useForm();
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
   const handleLogin = async (values) => {
     setLoading(true);
     try {
       const loginData = {
-        username: values.username,
+        username: values.username.trim().toLowerCase(),
         password: values.password
       };
 
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      console.log('Sending login request:', { username: loginData.username }); // Debug log
+
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(loginData),
+        mode: 'cors',
+        body: JSON.stringify(loginData)
       });
 
       const data = await response.json();
       
       if (response.ok) {
-        message.success(data.message || 'Giriş başarılı!');
+        // Store both user data and token
         localStorage.setItem('user', JSON.stringify(data));
-        onLogin(data); // Tüm kullanıcı verisini gönder
+        localStorage.setItem('token', data.token); // Make sure backend sends token
+        message.success('Giriş başarılı!');
+        onLogin(data);
       } else {
-        message.error(data.message || 'Kullanıcı adı veya şifre hatalı!');
-        form.resetFields(['password']); 
+        message.error(data.message || 'Giriş başarısız!');
+        form.resetFields(['password']);
       }
     } catch (error) {
       console.error('Login error:', error);
-      message.error('Giriş yapılırken bir hata oluştu!');
+      message.error('Sunucu bağlantısında hata oluştu!');
       form.resetFields(['password']);
     } finally {
       setLoading(false);
@@ -48,8 +54,8 @@ function LoginPage({ onLogin }) {
     setLoading(true);
     try {
       const registerData = {
-        username: values.username.trim(),
-        email: values.email.trim(),
+        username: values.username.trim().toLowerCase(),
+        email: values.email.trim().toLowerCase(),
         password: values.password
       };
 
@@ -59,7 +65,8 @@ function LoginPage({ onLogin }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify(registerData),
+        mode: 'cors',  // Add CORS mode
+        body: JSON.stringify(registerData)
       });
 
       const data = await response.json();

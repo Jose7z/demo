@@ -1,7 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Space, Popconfirm, Modal, Form, Select } from 'antd';
+import { Table, Input, Button, Space, Popconfirm, Modal, Form, Select, message } from 'antd';
 import { DeleteOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import axios from 'axios';
+
+const BASE_URL = 'http://localhost:8080';
+
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.timeout = 5000;
+axios.defaults.withCredentials = true;
+
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.timeout = 5000;
+axios.defaults.withCredentials = true;
+
+axios.interceptors.request.use(request => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.replace('/login');
+        return Promise.reject('No token found');
+    }
+
+    request.headers['Authorization'] = `Bearer ${token}`;
+    request.headers['Accept'] = 'application/json';
+    request.headers['Content-Type'] = 'application/json';
+
+    return request;
+}, error => Promise.reject(error));
 
 function EnvanterList({ filteredData }) {
     const [envanterler, setEnvanterler] = useState([]);
@@ -9,10 +33,62 @@ function EnvanterList({ filteredData }) {
     const [assignForm] = Form.useForm();
     const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            console.log('Token:', token); // Add token logging
+
+            const response = await axios.get(`${BASE_URL}/api/envanter`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
+
+            console.log('Full Response:', response); // Log full response
+            console.log('Response Headers:', response.headers); // Log headers
+            
+            if (response.data) {
+                console.log('Data type:', typeof response.data); // Log data type
+                const data = Array.isArray(response.data) ? response.data : [response.data];
+                console.log('Processed data:', data);
+                setEnvanterler(data);
+                setError(null);
+            } else {
+                console.error('No data received');
+                setEnvanterler([]);
+                setError('Veri bulunamadı');
+            }
+        } catch (error) {
+            console.error('Detailed fetch error:', {
+                message: error.message,
+                response: error.response,
+                request: error.request
+            });
+            setEnvanterler([]);
+            setError(`Veri yüklenirken bir hata oluştu: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (filteredData) {
+            setEnvanterler(filteredData);
+        } else {
+            fetchData();
+        }
+    }, [filteredData]);
 
     const handleAssignment = async (values) => {
+        setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8080/api/assign', {
+            const response = await axios.post('/api/assign', {
                 etiketno: selectedItem.etiketno,
                 sorumluluksicil: values.sorumluluksicil,
                 sorumluluk: values.sorumluluk,
@@ -20,66 +96,33 @@ function EnvanterList({ filteredData }) {
             });
 
             if (response.status === 200) {
-                alert(values.action === 'assign' ? 'Ürün başarıyla atandı!' : 'Ürün başarıyla geri alındı!');
+                message.success(values.action === 'assign' ? 'Ürün başarıyla atandı!' : 'Ürün başarıyla geri alındı!');
                 setIsAssignModalVisible(false);
                 assignForm.resetFields();
-
-                const updatedData = await axios.get('http://localhost:8080/api/envanter');
-                setEnvanterler(updatedData.data);
+                await fetchData();
             }
         } catch (error) {
-            alert('İşlem sırasında bir hata oluştu!');
+            console.error('Assignment error:', error);
+            message.error('İşlem sırasında bir hata oluştu!');
+        } finally {
+            setLoading(false);
         }
     };
-
-    useEffect(() => {
-        console.log('Fetching data...');
-        axios.get('http://localhost:8080/api/envanter', {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                console.log('Raw API Response:', response);
-                const data = response.data;
-                console.log('API Data:', data);
-                if (Array.isArray(data)) {
-                    setEnvanterler(data);
-                } else {
-                    console.error('Data is not an array:', data);
-                    setError('Invalid data format received');
-                }
-            })
-            .catch(error => {
-                console.error('Detailed error:', error.response || error);
-                setError(error.message || 'An error occurred while fetching data');
-            });
-    }, []);
-
-    useEffect(() => {
-        if (filteredData) {
-            setEnvanterler(filteredData);
-        } else {
-            axios.get('http://localhost:8080/api/envanter')
-                .then(response => {
-                    setEnvanterler(response.data);
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
-    }, [filteredData]);
 
     const handleDelete = async (etiketno) => {
+        setLoading(true);
         try {
-            await axios.delete(`http://localhost:8080/api/envanter/${etiketno}`);
-            setEnvanterler(envanterler.filter(item => item.etiketno !== etiketno));
+            await axios.delete(`/api/envanter/${etiketno}`);
+            message.success('Kayıt başarıyla silindi');
+            setEnvanterler(prev => prev.filter(item => item.etiketno !== etiketno));
         } catch (error) {
-            console.error('Silme hatası:', error);
-            alert('Veri silinirken bir hata oluştu');
+            console.error('Delete error:', error);
+            message.error('Veri silinirken bir hata oluştu');
+        } finally {
+            setLoading(false);
         }
     };
+    
 
     const columns = [
         {
@@ -178,22 +221,51 @@ function EnvanterList({ filteredData }) {
         },
     ];
 
-    if (error) {
-        return (
-            <div style={{ color: 'red', padding: '20px' }}>
-                <h3>Hata</h3>
-                <p>{error}</p>
-            </div>
-        );
-    }
-
-    if (!envanterler || envanterler.length === 0) {
-        return <div style={{ padding: '20px' }}>Veriler yükleniyor...</div>;
-    }
+    const renderError = () => {
+        if (error) {
+            return (
+                <div style={{
+                    padding: '20px',
+                    textAlign: 'center',
+                    background: '#fff1f0',
+                    border: '1px solid #ffa39e',
+                    borderRadius: '4px'
+                }}>
+                    <h3 style={{ color: '#cf1322' }}>Hata</h3>
+                    <p>{error}</p>
+                </div>
+            );
+        }
+        return null;
+    };
+    const handleFormSubmit = async (values) => {
+        setLoading(true);
+        try {
+            const response = await axios.post('/api/envanter', values);
+            if (response.status === 200 || response.status === 201) {
+                message.success('Yeni ürün başarıyla eklendi!');
+                await fetchData();
+            }
+        } catch (error) {
+            console.error('New item error:', error);
+            if (error.response?.status === 403) {
+                message.error('Yetkiniz bulunmamaktadır!');
+            } else {
+                message.error('Ürün eklenirken bir hata oluştu!');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
+            
+            
+            
+            {renderError()}
             <Table
+                loading={loading}
                 columns={columns}
                 dataSource={envanterler}
                 rowKey="etiketno"
@@ -249,7 +321,7 @@ function EnvanterList({ filteredData }) {
                         </Select>
                     </Form.Item>
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
+                        <Button type="primary" htmlType="submit" loading={loading} block>
                             Onayla
                         </Button>
                     </Form.Item>
