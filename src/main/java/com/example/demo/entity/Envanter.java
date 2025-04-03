@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "envanter") // Veritabanındaki gerçek tablo adını buraya yazın
+@Table(name = "envanter") 
 public class Envanter {
     @Id
     @Column(name = "etiketno", unique = true, nullable = false)

@@ -1,79 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Input, Button, Space, Popconfirm, Modal, Form, Select, message } from 'antd';
 import { DeleteOutlined, UserSwitchOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:8080';
 
-axios.defaults.baseURL = BASE_URL;
-axios.defaults.timeout = 5000;
-axios.defaults.withCredentials = true;
 
-axios.defaults.baseURL = BASE_URL;
-axios.defaults.timeout = 5000;
-axios.defaults.withCredentials = true;
+axios.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.replace('/login');
+            return Promise.reject('No token found');
+        }
+        
+        config.headers = {
+            ...config.headers,
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+        return config;
+    },
+    error => Promise.reject(error)
+);
 
-axios.interceptors.request.use(request => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.replace('/login');
-        return Promise.reject('No token found');
+// Response interceptor
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            window.location.replace('/login');
+        }
+        return Promise.reject(error);
     }
+);
 
-    request.headers['Authorization'] = `Bearer ${token}`;
-    request.headers['Accept'] = 'application/json';
-    request.headers['Content-Type'] = 'application/json';
-
-    return request;
-}, error => Promise.reject(error));
 
 function EnvanterList({ filteredData }) {
     const [envanterler, setEnvanterler] = useState([]);
     const [error, setError] = useState(null);
     const [assignForm] = Form.useForm();
-    const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [isAssignModalVisible, setIsAssignModalVisible] = useState(false);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            console.log('Token:', token); // Add token logging
+            const response = await axios.get('/api/envanter');
+            console.log('Response data type:', typeof response.data);
+            console.log('Response data:', response.data);
 
-            const response = await axios.get(`${BASE_URL}/api/envanter`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                withCredentials: true
-            });
-
-            console.log('Full Response:', response); // Log full response
-            console.log('Response Headers:', response.headers); // Log headers
-            
-            if (response.data) {
-                console.log('Data type:', typeof response.data); // Log data type
-                const data = Array.isArray(response.data) ? response.data : [response.data];
-                console.log('Processed data:', data);
-                setEnvanterler(data);
-                setError(null);
-            } else {
-                console.error('No data received');
-                setEnvanterler([]);
-                setError('Veri bulunamadı');
+            if (!response.data) {
+                throw new Error('No data received from server');
             }
+
+            const dataArray = Array.isArray(response.data) ? response.data : [];
+            setEnvanterler(dataArray);
+            
+            if (dataArray.length === 0) {
+                setError('Kayıtlı envanter bulunmamaktadır');
+            } else {
+                setError(null);
+            }
+
         } catch (error) {
-            console.error('Detailed fetch error:', {
+            console.error('Fetch error details:', {
                 message: error.message,
-                response: error.response,
-                request: error.request
+                status: error.response?.status,
+                data: error.response?.data
             });
             setEnvanterler([]);
-            setError(`Veri yüklenirken bir hata oluştu: ${error.message}`);
+            handleApiError(error);
         } finally {
             setLoading(false);
+        }
+    }, []);
+
+    const handleApiError = (error) => {
+        if (error.response) {
+            // Server responded with a status code outside of 2xx
+            console.error('Error response:', error.response);
+            switch (error.response.status) {
+                case 401:
+                    setError('Oturum süreniz dolmuş olabilir. Lütfen tekrar giriş yapın.');
+                    window.location.replace('/login');
+                    break;
+                case 403:
+                    setError('Yetkiniz bulunmamaktadır');
+                    break;
+                default:
+                    setError(`Sunucu hatası: ${error.response.status}`);
+            }
+        } else if (error.request) {
+            // Request was made but no response received
+            console.error('No response received:', error.request);
+            setError('Sunucudan yanıt alınamadı');
+        } else {
+            // Error in request setup
+            console.error('Request setup error:', error.message);
+            setError(`İstek hatası: ${error.message}`);
         }
     };
 
@@ -83,7 +110,7 @@ function EnvanterList({ filteredData }) {
         } else {
             fetchData();
         }
-    }, [filteredData]);
+    }, [filteredData, fetchData]);
 
     const handleAssignment = async (values) => {
         setLoading(true);
@@ -122,6 +149,7 @@ function EnvanterList({ filteredData }) {
             setLoading(false);
         }
     };
+    
     
 
     const columns = [

@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.HttpHeaders;
 import java.util.List;
 
 @RestController
@@ -22,15 +22,16 @@ public class EnvanterController {
 
     @GetMapping("/envanter")
     public ResponseEntity<List<Envanter>> getAllEnvanter() {
+        System.out.println("EnvanterController: Received GET request for /api/envanter");
         try {
             List<Envanter> envanterList = envanterService.getAllEnvanter();
-            System.out.println("Fetched envanter list size: " + envanterList.size());
-            System.out.println("Sample data: " + (envanterList.isEmpty() ? "No data" : envanterList.get(0)));
+            System.out.println("EnvanterController: Service returned " + envanterList.size() + " records");
+            System.out.println("EnvanterController: Response headers: " + ResponseEntity.ok().headers(new HttpHeaders()).build().getHeaders());
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(envanterList);
         } catch (Exception e) {
-            System.err.println("Error in getAllEnvanter: " + e.getMessage());
+            System.err.println("EnvanterController Error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }

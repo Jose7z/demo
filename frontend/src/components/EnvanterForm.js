@@ -7,29 +7,52 @@ import moment from 'moment';
 
 function EnvanterForm({ onSubmit, onSearch }) {
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Validate all fields have values
     const hasEmptyFields = Object.values(formData).some(value => !value);
     if (hasEmptyFields) {
         message.error('Lütfen tüm alanları doldurunuz!');
         return;
     }
-    onSubmit(formData);
-    // Reset form after successful submission
-    setFormData({
-        etiketno: '',
-        urunailesi: '',
-        modeladi: '',
-        durum: '',
-        lokasyonadi: '',
-        lokasyonkodu: '',
-        lokasyontipi: '',
-        sorumluluksicil: '',
-        sorumluluk: '',
-        sinif: '',
-        irsaliyetarihi: ''
-    });
+    
+    try {
+        const requestData = {
+            etiketno: formData.etiketno ? parseInt(formData.etiketno, 10) : null,
+            urunailesi: formData.urunailesi || '',
+            modeladi: formData.modeladi || '',
+            durum: formData.durum || '',
+            lokasyonadi: formData.lokasyonadi || '',
+            lokasyonkodu: formData.lokasyonkodu || '',
+            lokasyontipi: formData.lokasyontipi || '',
+            sorumluluksicil: formData.sorumluluksicil || '',
+            sorumluluk: formData.sorumluluk || '',
+            sinif: formData.sinif || '',
+            irsaliyetarihi: formData.irsaliyetarihi || null
+        };
+
+        await onSubmit(requestData);
+        message.success('Yeni ürün başarıyla eklendi!');
+        setFormData({
+            etiketno: '',
+            urunailesi: '',
+            modeladi: '',
+            durum: '',
+            lokasyonadi: '',
+            lokasyonkodu: '',
+            lokasyontipi: '',
+            sorumluluksicil: '',
+            sorumluluk: '',
+            sinif: '',
+            irsaliyetarihi: ''
+        });
+    } catch (error) {
+        console.error('Form submission error:', error);
+        if (error.response?.status === 403) {
+            message.error('Yetkiniz bulunmamaktadır!');
+        } else {
+            message.error('Ürün eklenirken bir hata oluştu: ' + (error.response?.data?.message || error.message));
+        }
+    }
 };
 
   const handleSearch = (e) => {
@@ -38,29 +61,11 @@ function EnvanterForm({ onSubmit, onSearch }) {
   };
   const [searchText, setSearchText] = useState('');
 
-  const formStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '16px',
-    padding: '20px'
-  };
-
-  const inputStyle = {
-    flex: '1 1 calc(25% - 16px)',
-    minWidth: '250px'
-  };
-
   const buttonContainerStyle = {
     width: '100%',
     display: 'flex',
     justifyContent: 'center',
     marginTop: '20px'
-  };
-  const layoutStyle = {
-    borderRadius: 8,
-    overflow: 'hidden',
-    width: 'calc(50% - 8px)',
-    maxWidth: 'calc(50% - 8px)',
   };
   const [formData, setFormData] = useState({
     etiketno: '',

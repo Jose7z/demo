@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Layout, Menu, theme } from 'antd';
+import { Button, Layout, Menu, theme, message } from 'antd';
 import { UserOutlined, DashboardOutlined, LogoutOutlined, DatabaseOutlined, UploadOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import EnvanterList from './components/EnvanterList';
 import EnvanterForm from './components/EnvanterForm';
@@ -8,8 +8,37 @@ import './App.css';
 import { utils as XLSXUtils, write as XLSXWrite } from 'xlsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './components/loginpage';
+import axios from 'axios';
 
 const { Header, Content, Footer, Sider } = Layout;
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.timeout = 15000;
+axios.defaults.withCredentials = true;
+
+axios.interceptors.request.use(
+  config => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401 && 
+        !error.config.url.includes('/api/envanter') && 
+        !error.config.url.includes('/api/assign')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.replace('/login');
+    }
+    return Promise.reject(error);
+  }
+);
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,92 +47,64 @@ function App() {
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [filteredData, setFilteredData] = useState(null);
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    localStorage.removeItem('user');
-  };
   const [currentUser, setCurrentUser] = useState(null);
-  const handleLogin = (userData) => {
-    setIsAuthenticated(true);
-    setCurrentUser(userData);
-  };
+
 
   const handleSubmit = async (formData) => {
     try {
-      if (!formData.etiketno) {
-        throw new Error('Etiket No boş olamaz');
-      }
-      const requestData = {
-        etiketno: parseInt(formData.etiketno, 10),
-        urunailesi: formData.urunailesi || '',
-        modeladi: formData.modeladi || '',
-        durum: formData.durum || '',
-        lokasyonadi: formData.lokasyonadi || '',
-        lokasyonkodu: formData.lokasyonkodu || '',
-        lokasyontipi: formData.lokasyontipi || '',
-        sorumluluksicil: formData.sorumluluksicil || '',
-        sorumluluk: formData.sorumluluk || '',
-        sinif: formData.sinif || '',
-        irsaliyetarihi: formData.irsaliyetarihi || null
-      };
-      console.log('Gönderilen veri:', requestData);
-      const response = await fetch('http://localhost:8080/api/envanter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify(requestData)
-      });
+        if (!formData.etiketno) {
+            throw new Error('Etiket No boş olamaz');
+        }
+        const requestData = {
+            etiketno: parseInt(formData.etiketno, 10),
+            urunailesi: formData.urunailesi || '',
+            modeladi: formData.modeladi || '',
+            durum: formData.durum || '',
+            lokasyonadi: formData.lokasyonadi || '',
+            lokasyonkodu: formData.lokasyonkodu || '',
+            lokasyontipi: formData.lokasyontipi || '',
+            sorumluluksicil: formData.sorumluluksicil || '',
+            sorumluluk: formData.sorumluluk || '',
+            sinif: formData.sinif || '',
+            irsaliyetarihi: formData.irsaliyetarihi || null
+        };
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || 'Veri eklenemedi');
-      }
-      const result = await response.json();
-      console.log('Başarılı:', result);
-      window.location.reload();
+        const response = await axios.post('/api/envanter', requestData);
+        if (response.status === 200 || response.status === 201) {
+            message.success('Yeni ürün başarıyla eklendi!');
+            const listResponse = await axios.get('/api/envanter');
+            setFilteredData(listResponse.data);
+        }
     } catch (error) {
-      console.error('Hata detayı:', error);
-      alert('Veri eklenirken bir hata oluştu: ' + error.message);
+        console.error('Form submission error:', error);
+        if (error.response?.status === 403) {
+            message.error('Yetkiniz bulunmamaktadır!');
+        } else {
+            message.error('Ürün eklenirken bir hata oluştu: ' + (error.response?.data?.message || error.message));
+        }
     }
-  };
+};
 
 
   const handleSearch = async (formData) => {
     try {
+      const params = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value && value !== '')
+      );
 
-      const queryParams = Object.entries(formData)
-        .filter(([_, value]) => value && value !== '')
-        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-        .join('&');
-
-      const response = await fetch(`http://localhost:8080/api/envanter/search?${queryParams}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Arama yapılırken bir hata oluştu');
-      }
-
-      const result = await response.json();
-      setFilteredData(result);
+      const response = await axios.get('/api/envanter/search', { params });
+      setFilteredData(response.data);
     } catch (error) {
       console.error('Arama hatası:', error);
       alert('Arama yapılırken bir hata oluştu: ' + error.message);
     }
   };
 
-  // Excel export kısmı 
 
   const handleExport = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/envanter');
-      const data = await response.json();
+      const response = await axios.get('/api/envanter');
+      const data = response.data;
 
       const ws = XLSXUtils.json_to_sheet(data);
       const wb = XLSXUtils.book_new();
@@ -122,20 +123,28 @@ function App() {
       alert('Veriler export edilirken bir hata oluştu');
     }
   };
+  const handleLogout = () => {
+    localStorage.removeItem('token');  // Add this line
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    window.location.replace('/login');  // Add this line
+  };
+  const handleLogin = (userData) => {
+    localStorage.setItem('token', userData.token);  // Add this line
+    localStorage.setItem('user', JSON.stringify(userData));  // Add this line
+    setIsAuthenticated(true);
+    setCurrentUser(userData);
+  };
 
   const items = [
     {
       key: '1',
-      icon: <DashboardOutlined />,
-      label: 'Dashboard',
-    },
-    {
-      key: '2',
       icon: <DatabaseOutlined />,
       label: 'Envanter',
     },
     {
-      key: '3',
+      key: '2',
       icon: <UploadOutlined />,
       label: 'Export',
       onClick: handleExport
@@ -159,7 +168,7 @@ function App() {
         <Menu
           theme="dark"
           mode="inline"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['1']}
           items={items}
         />
       </Sider>

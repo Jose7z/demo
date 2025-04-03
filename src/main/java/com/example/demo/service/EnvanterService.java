@@ -45,9 +45,13 @@ public class EnvanterService {
     }
     
     public List<Envanter> getAllEnvanter() {
-        List<Envanter> envanterList = envanterRepository.findAll();
-        System.out.println("Service layer - Retrieved envanter list size: " + envanterList.size());
-        return envanterList;
+        System.out.println("EnvanterService: Fetching all records");
+        List<Envanter> result = envanterRepository.findAll();
+        System.out.println("EnvanterService: Found " + result.size() + " records");
+        if (!result.isEmpty()) {
+            System.out.println("EnvanterService: First record: " + result.get(0));
+        }
+        return result;
     }
     
     public Optional<Envanter> getEnvanterById(Integer etiketNo) {

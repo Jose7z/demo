@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Layout, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
+import axios from 'axios';
 
 const { Content } = Layout;
 
@@ -8,37 +9,27 @@ function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [form] = Form.useForm();
-  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
   const handleLogin = async (values) => {
     setLoading(true);
     try {
-      const loginData = {
+      const response = await axios.post('/api/auth/login', {
         username: values.username.trim().toLowerCase(),
         password: values.password
-      };
-
-      console.log('Sending login request:', { username: loginData.username }); // Debug log
-
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        mode: 'cors',
-        body: JSON.stringify(loginData)
       });
 
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Store both user data and token
-        localStorage.setItem('user', JSON.stringify(data));
-        localStorage.setItem('token', data.token); // Make sure backend sends token
+      if (response.data) {
+        const userData = {
+          token: response.data.token,
+          username: response.data.username
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', userData.token);
         message.success('Giriş başarılı!');
-        onLogin(data);
+        onLogin(userData);
       } else {
-        message.error(data.message || 'Giriş başarısız!');
+        message.error('Giriş başarısız!');
         form.resetFields(['password']);
       }
     } catch (error) {
@@ -65,7 +56,7 @@ function LoginPage({ onLogin }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        mode: 'cors',  // Add CORS mode
+        mode: 'cors',
         body: JSON.stringify(registerData)
       });
 
