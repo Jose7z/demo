@@ -5,36 +5,66 @@ import axios from 'axios';
 
 const { Content } = Layout;
 
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
+
 function LoginPage({ onLogin }) {
+  console.log('LoginPage rendered');
   const [loading, setLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [form] = Form.useForm();
 
   const handleLogin = async (values) => {
+    console.log('Login attempt started');
     setLoading(true);
     try {
-      const response = await axios.post('/api/auth/login', {
-        username: values.username.trim().toLowerCase(),
-        password: values.password
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        mode: 'cors',
+        body: JSON.stringify({
+          username: values.username.trim().toLowerCase(),
+          password: values.password
+        })
       });
 
-      if (response.data) {
-        const userData = {
-          token: response.data.token,
-          username: response.data.username
-        };
-        
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', userData.token);
-        message.success('Giriş başarılı!');
-        onLogin(userData);
+      const data = await response.json();
+      
+      if (response.ok && data.token) {
+        message.success({
+          content: 'Giriş başarılı!',
+          duration: 3,
+          style: {
+            marginTop: '20vh',
+          },
+        });
+        onLogin({
+          token: data.token,
+          username: values.username
+        });
       } else {
-        message.error('Giriş başarısız!');
+        message.error({
+          content: data.message || 'Giriş başarısız!',
+          duration: 3,
+          style: {
+            marginTop: '20vh',
+          },
+        });
         form.resetFields(['password']);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      message.error('Sunucu bağlantısında hata oluştu!');
+      console.error('Login failed:', error);
+      message.error({
+        content: 'Sunucu bağlantısında hata oluştu!',
+        duration: 3,
+        style: {
+          marginTop: '20vh',
+        },
+      });
       form.resetFields(['password']);
     } finally {
       setLoading(false);

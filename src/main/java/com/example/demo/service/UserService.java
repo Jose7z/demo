@@ -20,6 +20,17 @@ public class UserService {
     
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    public User authenticateUser(String username, String password) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+        
+        return user;
+    }
+
     public ResponseEntity<?> registerUser(User user) {
         try {
             if (userRepository.findByUsername(user.getUsername()).isPresent()) {

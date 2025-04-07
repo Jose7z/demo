@@ -21,11 +21,11 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/envanter
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/dockerdatabase
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=0917033
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_SHOW_SQL=true  # Add this to see SQL queries
+      - SPRING_JPA_SHOW_SQL=true
       - JAVA_TOOL_OPTIONS=-XX:+UseContainerSupport
       - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
     networks:
@@ -36,7 +36,7 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=envanter
+      - POSTGRES_DB=dockerdatabase
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=0917033
     volumes:
@@ -44,6 +44,7 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge

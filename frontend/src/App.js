@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Button, Layout, Menu, theme, message } from 'antd';
-import { UserOutlined, DashboardOutlined, LogoutOutlined, DatabaseOutlined, UploadOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { UserOutlined, LogoutOutlined, DatabaseOutlined, UploadOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import EnvanterList from './components/EnvanterList';
 import EnvanterForm from './components/EnvanterForm';
 import 'antd/dist/reset.css';
 import './App.css';
 import { utils as XLSXUtils, write as XLSXWrite } from 'xlsx';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate,} from 'react-router-dom';
 import LoginPage from './components/loginpage';
 import axios from 'axios';
 
@@ -14,6 +14,9 @@ const { Header, Content, Footer, Sider } = Layout;
 axios.defaults.baseURL = 'http://localhost:8080';
 axios.defaults.timeout = 15000;
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.headers.common['Accept'] = 'application/json';
+
 
 axios.interceptors.request.use(
   config => {
@@ -23,67 +26,72 @@ axios.interceptors.request.use(
     }
     return config;
   },
-  error => Promise.reject(error)
+  error => {
+    return Promise.reject(error);
+  }
 );
 
 axios.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401 && 
-        !error.config.url.includes('/api/envanter') && 
-        !error.config.url.includes('/api/assign')) {
+    if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.replace('/login');
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem('token');
+  });
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [filteredData, setFilteredData] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  });
 
 
   const handleSubmit = async (formData) => {
     try {
-        if (!formData.etiketno) {
-            throw new Error('Etiket No boş olamaz');
-        }
-        const requestData = {
-            etiketno: parseInt(formData.etiketno, 10),
-            urunailesi: formData.urunailesi || '',
-            modeladi: formData.modeladi || '',
-            durum: formData.durum || '',
-            lokasyonadi: formData.lokasyonadi || '',
-            lokasyonkodu: formData.lokasyonkodu || '',
-            lokasyontipi: formData.lokasyontipi || '',
-            sorumluluksicil: formData.sorumluluksicil || '',
-            sorumluluk: formData.sorumluluk || '',
-            sinif: formData.sinif || '',
-            irsaliyetarihi: formData.irsaliyetarihi || null
-        };
+      if (!formData.etiketno) {
+        throw new Error('Etiket No boş olamaz');
+      }
+      const requestData = {
+        etiketno: parseInt(formData.etiketno, 10),
+        urunailesi: formData.urunailesi || '',
+        modeladi: formData.modeladi || '',
+        durum: formData.durum || '',
+        lokasyonadi: formData.lokasyonadi || '',
+        lokasyonkodu: formData.lokasyonkodu || '',
+        lokasyontipi: formData.lokasyontipi || '',
+        sorumluluksicil: formData.sorumluluksicil || '',
+        sorumluluk: formData.sorumluluk || '',
+        sinif: formData.sinif || '',
+        irsaliyetarihi: formData.irsaliyetarihi || null
+      };
 
-        const response = await axios.post('/api/envanter', requestData);
-        if (response.status === 200 || response.status === 201) {
-            message.success('Yeni ürün başarıyla eklendi!');
-            const listResponse = await axios.get('/api/envanter');
-            setFilteredData(listResponse.data);
-        }
+      const response = await axios.post('/api/envanter', requestData);
+      if (response.status === 200 || response.status === 201) {
+        message.success('Yeni ürün başarıyla eklendi!');
+        const listResponse = await axios.get('/api/envanter');
+        setFilteredData(listResponse.data);
+      }
     } catch (error) {
-        console.error('Form submission error:', error);
-        if (error.response?.status === 403) {
-            message.error('Yetkiniz bulunmamaktadır!');
-        } else {
-            message.error('Ürün eklenirken bir hata oluştu: ' + (error.response?.data?.message || error.message));
-        }
+      console.error('Form submission error:', error);
+      if (error.response?.status === 403) {
+        message.error('Yetkiniz bulunmamaktadır!');
+      } else {
+        message.error('Ürün eklenirken bir hata oluştu: ' + (error.response?.data?.message || error.message));
+      }
     }
-};
+  };
 
 
   const handleSearch = async (formData) => {
@@ -124,17 +132,26 @@ function App() {
     }
   };
   const handleLogout = () => {
-    localStorage.removeItem('token');  // Add this line
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsAuthenticated(false);
     setCurrentUser(null);
-    window.location.replace('/login');  // Add this line
+    window.location.href = '/login';
   };
   const handleLogin = (userData) => {
-    localStorage.setItem('token', userData.token);  // Add this line
-    localStorage.setItem('user', JSON.stringify(userData));  // Add this line
-    setIsAuthenticated(true);
-    setCurrentUser(userData);
+    try {
+      console.log('HandleLogin called in App.js', userData);
+      setIsAuthenticated(true);
+      setCurrentUser(userData);
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', userData.token);
+      
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Login error:', error);
+      message.error('Giriş işlemi başarısız oldu');
+    }
   };
 
   const items = [
@@ -235,14 +252,21 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={
-          !isAuthenticated ?
-            <LoginPage onLogin={handleLogin} /> :
+          !isAuthenticated ? (
+            <LoginPage onLogin={(userData) => {
+              console.log('Login callback triggered with:', userData);
+              handleLogin(userData);
+            }} />
+          ) : (
             <Navigate to="/" replace />
+          )
         } />
         <Route path="/*" element={
-          isAuthenticated ?
-            <MainLayout /> :
-            <Navigate to="/login" replace />
+          isAuthenticated ? (
+            <MainLayout />
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
       </Routes>
     </Router>
